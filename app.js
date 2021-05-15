@@ -96,11 +96,10 @@ function from_RGB(Red, Green, Blue) {
     const Blackness = 1 - Chromaticness - Whiteness;
     
     const rgb_header_1_text = `Chromaticness: ${twof(Chromaticness*100)}%, Whiteness: ${twof(Whiteness*100)}%, Blackness: ${twof(Blackness*100)}%`;
-    const rgb_header_1_el = document.querySelector('#from_RGB_title_1');
-    console.log(rgb_header_1_el);
-    rgb_header_1_el.textContent = rgb_header_1_text;
-    console.log(rgb_header_1_text);
-    
+    // const rgb_header_1_el = document.querySelector('#from_RGB_title_1');
+    // rgb_header_1_el.textContent = rgb_header_1_text;
+    createText('from_RGB_title_1', rgb_header_1_text);
+   
     // calculate Hue, Saturation and Lightness
     if(Math.max(...rgb_percent) == Math.min(...rgb_percent)) {
         Hue = 0;
@@ -117,16 +116,19 @@ function from_RGB(Red, Green, Blue) {
     
     // print("Hue: %.2f, Saturation: %.2f%%, Lightness: %.2f%%" % (Hue, Saturation*100, Lightness*100))
     const rgb_header_2_text = `Hue: ${twof(Hue)}, Saturation: ${twof(Saturation*100)}%, Lightness: ${twof(Lightness*100)}%`;
-    const rgb_header_2_el = document.querySelector('#from_RGB_title_2');
-    rgb_header_2_el.textContent = rgb_header_2_text;
+    // const rgb_header_2_el = document.querySelector('#from_RGB_title_2');
+    // rgb_header_2_el.textContent = rgb_header_2_text;
+    createText('from_RGB_title_2', rgb_header_2_text);
+
 
 
     show_color(Red, Green, Blue, from_RGB);
     
     // Name the colour
     const rgb_header_3_text = `This colour is named: ${name_this_colour(Hue,Saturation,Lightness)}`;
-    const rgb_header_3_el = document.querySelector('#from_RGB_title_3');
-    rgb_header_3_el.textContent = rgb_header_3_text;
+    // const rgb_header_3_el = document.querySelector('#from_RGB_title_3');
+    // rgb_header_3_el.textContent = rgb_header_3_text;
+    createText('from_RGB_title_3', rgb_header_3_text);
 
     return null;
 }  
@@ -171,17 +173,19 @@ function to_RGB(Hue,Saturation,Lightness) {
     const Whiteness = Lightness - Saturation/2;
     const Blackness = 1 - Whiteness - Chromaticness;
     // console.log(`Chromaticness: ${twof(Chromaticness*100)}%, Whiteness: ${twof(Whiteness*100)}%, Blackness: ${Blackness*100}%`);
-    const rgb_header_1_text = `Chromaticness: ${twof(Chromaticness*100)}%, Whiteness: ${twof(Whiteness*100)}%, Blackness: ${Blackness*100}%`;
-    const rgb_header_1_el = document.querySelector('#to_RGB_title_1');
-    rgb_header_1_el.textContent = rgb_header_1_text;
+    const rgb_header_1_text = `Chromaticness: ${twof(Chromaticness*100)}%, Whiteness: ${twof(Whiteness*100)}%, Blackness: ${twof(Blackness*100)}%`;
+    // const rgb_header_1_el = document.querySelector('#to_RGB_title_1');
+    // rgb_header_1_el.textContent = rgb_header_1_text;
+    createText('to_RGB_title_1', rgb_header_1_text);
 
     const Red = parseInt(r*Saturation + Whiteness * 255);
     const Green = parseInt(g*Saturation + Whiteness * 255);
     const Blue = parseInt(b*Saturation + Whiteness * 255);
     // console.log(`RGB values: Red: ${Red}, Green: ${Green}, Blue: ${Blue}`);
     const rgb_header_2_text =`RGB values: Red: ${Red}, Green: ${Green}, Blue: ${Blue}`;
-    const rgb_header_2_el = document.querySelector('#to_RGB_title_2');
-    rgb_header_2_el.textContent = rgb_header_2_text;
+    // const rgb_header_2_el = document.querySelector('#to_RGB_title_2');
+    // rgb_header_2_el.textContent = rgb_header_2_text;
+    createText('to_RGB_title_2', rgb_header_2_text);
 
     show_color(Red, Green, Blue, to_RGB);
 
@@ -189,8 +193,10 @@ function to_RGB(Hue,Saturation,Lightness) {
 
     // Name the colour
     const rgb_header_3_text = `This colour is named: ${name_this_colour(Hue,Saturation,Lightness)}`;
-    const rgb_header_3_el = document.querySelector('#to_RGB_title_3');
-    rgb_header_3_el.textContent = rgb_header_3_text;
+    // const rgb_header_3_el = document.querySelector('#to_RGB_title_3');
+    // rgb_header_3_el.textContent = rgb_header_3_text;
+
+    createText('to_RGB_title_3', rgb_header_3_text);
 
 
     return null;
@@ -273,6 +279,11 @@ function createDetails(name) {
     detailsHolder.appendChild(showColor);
     detailsHolder.appendChild(title3);
     return detailsHolder;
+}
+
+function createText(elementId, text) {
+    const el = document.querySelector(`#${elementId}`);
+    el.textContent = text;
 }
 
 
