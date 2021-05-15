@@ -1,5 +1,4 @@
 function name_this_colour(Hue, Saturation, Lightness) {
-
     // hue name
     const hues_dict = new Map([
         [0, 'red'],
@@ -68,7 +67,59 @@ function name_this_colour(Hue, Saturation, Lightness) {
     }
     return Colour_name;
 }
-console.log(name_this_colour(2557, 1, 100));
+
+//@REMOVE TEST
+//console.log(name_this_colour(2557, 1, 100));
+
+
+function from_RGB(Red, Green, Blue) {
+    const rgb_255 = [Red,Green,Blue];
+    const rgb_percent = rgb_255.map(el => el / 255);
+    const diff = Math.max(...rgb_percent)-Math.min(...rgb_percent);
+    const red_pc = rgb_percent[0];
+    const green_pc = rgb_percent[1];
+    const blue_pc = rgb_percent[2];
+    let  Hue;
+
+    // calculate chromaticness, whiteness and blackness
+    const Chromaticness = Math.max(...rgb_percent) - Math.min(...rgb_percent);
+    const Whiteness = Math.max(...rgb_percent) - Chromaticness;
+    const Blackness = 1 - Chromaticness - Whiteness;
+
+    const twof = (num) => num.toFixed(2);// (Math.round(num + 'e+2')  + 'e-2');    
+    // const twof = (num) => {
+    //     var m = Number((Math.abs(num) * 100).toPrecision(15));
+    //     return Math.round(m) / 100 * Math.sign(num);
+    // };
+    console.log(`Chromaticness: ${twof(Chromaticness*100)}%, Whiteness: ${twof(Whiteness*100)}%, Blackness: ${twof(Blackness*100)}%`);
+    
+    // calculate Hue, Saturation and Lightness
+    if(Math.max(...rgb_percent) == Math.min(...rgb_percent)) {
+        Hue = 0;
+    } else if (Math.max(...rgb_percent) == red_pc) {
+        Hue = (60 * ((green_pc-blue_pc)/diff) + 360) % 360;
+    } else if (Math.max(...rgb_percent) == green_pc) {
+        Hue = (60 * ((blue_pc-red_pc)/diff) + 120) % 360;
+    } else if (Math.max(...rgb_percent) == blue_pc) {
+        Hue = (60 * ((red_pc-green_pc)/diff) + 240) % 360;
+    }
+        
+    const Lightness = Whiteness + Chromaticness/2;
+    const Saturation = Chromaticness;
+    
+    // print("Hue: %.2f, Saturation: %.2f%%, Lightness: %.2f%%" % (Hue, Saturation*100, Lightness*100))
+    console.log(`Hue: ${twof(Hue)}, Saturation: ${twof(Saturation*100)}%, Lightness: ${twof(Lightness*100)}%`);
+
+    //@TODO IN HTML Visualize the colour
+    // show_color(Red, Green, Blue);
+    
+    // Name the colour
+    console.log(`This colour is named: ${name_this_colour(Hue,Saturation,Lightness)}`);
+    return null;
+}
+
+    
+from_RGB(59, 179, 159);
 
 
 
