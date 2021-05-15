@@ -71,8 +71,8 @@ function name_this_colour(Hue, Saturation, Lightness) {
 //@REMOVE TEST
 //console.log(name_this_colour(2557, 1, 100));
 
-function show_color(Red, Green, Blue, cl) {
-    document.querySelector(`.${cl}_showColor`).style.background = `rgb(${Red},${Green},${Blue})`;
+function show_color(Red, Green, Blue, fn) {
+    document.querySelector(`.${fn.name}_showColor`).style.background = `rgb(${Red},${Green},${Blue})`;
 }
 
 const twof = (num) => num.toFixed(2);// (Math.round(num + 'e+2')  + 'e-2');    
@@ -121,8 +121,7 @@ function from_RGB(Red, Green, Blue) {
     rgb_header_2_el.textContent = rgb_header_2_text;
 
 
-    //@TODO IN HTML Visualize the colour
-    show_color(Red, Green, Blue, 'from_RGB');
+    show_color(Red, Green, Blue, from_RGB);
     
     // Name the colour
     const rgb_header_3_text = `This colour is named: ${name_this_colour(Hue,Saturation,Lightness)}`;
@@ -153,8 +152,8 @@ console.log(pure_hue(0.20));
 
 
 // define widgets with constraints for the following interaction
-const saturation_widget = createSlider('to_RGB', 'saturation', [0, 1, 0.01]);
-const lightness_widget = createSlider('to_RGB', 'lightness', [0, 1, 0.01]);
+const saturation_widget = createSlider(to_RGB, 'saturation', [0, 1, 0.01]);
+const lightness_widget = createSlider(to_RGB, 'lightness', [0, 1, 0.01]);
 
 function update_lightness_range(saturation_widget, lightness_widget, evt) {
     console.log(evt);
@@ -166,20 +165,34 @@ function update_lightness_range(saturation_widget, lightness_widget, evt) {
 }
 
 function to_RGB(Hue,Saturation,Lightness) {
-   const  [r,g,b] = [pure_hue(Hue/360+1/3)*255, pure_hue(Hue/360)*255, pure_hue(Hue/360-1/3)*255];
-    console.log('RGB values for fully saturated colour:', parseInt(r),parseInt(g),parseInt(b));
+    const  [r,g,b] = [pure_hue(Hue/360+1/3)*255, pure_hue(Hue/360)*255, pure_hue(Hue/360-1/3)*255];   
     
     const Chromaticness = Saturation;
     const Whiteness = Lightness - Saturation/2;
     const Blackness = 1 - Whiteness - Chromaticness;
-    console.log(`Chromaticness: ${twof(Chromaticness*100)}%, Whiteness: ${twof(Whiteness*100)}%, Blackness: ${Blackness*100}%`);
-    
+    // console.log(`Chromaticness: ${twof(Chromaticness*100)}%, Whiteness: ${twof(Whiteness*100)}%, Blackness: ${Blackness*100}%`);
+    const rgb_header_1_text = `Chromaticness: ${twof(Chromaticness*100)}%, Whiteness: ${twof(Whiteness*100)}%, Blackness: ${Blackness*100}%`;
+    const rgb_header_1_el = document.querySelector('#to_RGB_title_1');
+    rgb_header_1_el.textContent = rgb_header_1_text;
+
     const Red = parseInt(r*Saturation + Whiteness * 255);
     const Green = parseInt(g*Saturation + Whiteness * 255);
     const Blue = parseInt(b*Saturation + Whiteness * 255);
-    console.log(`RGB values: Red: ${Red}, Green: ${Green}, Blue: ${Blue}`);
-    show_color(Red, Green, Blue);
-    console.log(`This colour is named: ${name_this_colour(Hue,Saturation,Lightness)}`);
+    // console.log(`RGB values: Red: ${Red}, Green: ${Green}, Blue: ${Blue}`);
+    const rgb_header_2_text =`RGB values: Red: ${Red}, Green: ${Green}, Blue: ${Blue}`;
+    const rgb_header_2_el = document.querySelector('#to_RGB_title_2');
+    rgb_header_2_el.textContent = rgb_header_2_text;
+
+    show_color(Red, Green, Blue, to_RGB);
+
+    // console.log(`This colour is named: ${name_this_colour(Hue,Saturation,Lightness)}`);
+
+    // Name the colour
+    const rgb_header_3_text = `This colour is named: ${name_this_colour(Hue,Saturation,Lightness)}`;
+    const rgb_header_3_el = document.querySelector('#to_RGB_title_3');
+    rgb_header_3_el.textContent = rgb_header_3_text;
+
+
     return null;
 }
 
@@ -187,41 +200,32 @@ function to_RGB(Hue,Saturation,Lightness) {
 
 //When you pass a function as the first argument to the function interact, along with named arguments, 
 // a slider is generated and bound to the function parameter.
-
-const rgbWidget = document.querySelector('rgb-widget');
-
 function interact(fn, widget_params) { 
     
     const widgetHolder = document.createElement('DIV');
 
     const getValues = () => {
         const groupSliders = document.querySelectorAll(`input[id^="${fn.name}_widget_"]`);
-        console.log(groupSliders);
         return Array.from(groupSliders).map((slider) => slider.value);                
     };
 
     Object.keys(widget_params).forEach(key => {
         let slider;
-        // if we are passing a slider element
-        // if(widget_params[key] instanceof HTMLElement) {
-        //     slider = widget_params[key];
-        // } // if  we are passing an array
-        // else 
-        if(Array.isArray(widget_params[key])) {
-          slider = createSlider(fn.name, key, widget_params[key]);
+        // if we are passing a created slider element
+        if(widget_params[key] instanceof HTMLElement) {
+            slider = widget_params[key];
+        } else if(Array.isArray(widget_params[key])) { // if  we are passing an array
+          slider = createSlider(fn, key, widget_params[key]);
         } else {
             // add new type in the future
         }
+
         //@TODO remove EventListeners when we remove the component
-        // add the EventListeners   
-        
-        slider.addEventListener('change', (evt) => {
-            fn(... getValues());
-        });
+        // add the EventListeners        
+        slider.addEventListener('change', (evt) => fn(... getValues()) );
 
         const label = createLabel(key);
         label.appendChild(slider);
-
         widgetHolder.appendChild(label);
     });
 
@@ -239,9 +243,7 @@ function createLabel(key) {
     return label;
 }
 
-
-function createSlider(name, key, [min,max,step]){       
-        
+function createSlider(fn, key, [min,max,step]){ 
     // create the slider;
     const slider = document.createElement('INPUT');
     slider.setAttribute('type', 'range');
@@ -249,7 +251,7 @@ function createSlider(name, key, [min,max,step]){
     slider.setAttribute('max', max);
     slider.setAttribute('value', Math.floor(max/2));
     slider.setAttribute('step', step);
-    slider.setAttribute('id', `${name}_widget_${key.toLowerCase()}`);
+    slider.setAttribute('id', `${fn.name}_widget_${key.toLowerCase()}`);
     return slider;
 }
 
@@ -270,11 +272,11 @@ function createDetails(name) {
     detailsHolder.appendChild(title2);
     detailsHolder.appendChild(showColor);
     detailsHolder.appendChild(title3);
-
     return detailsHolder;
 }
 
 
+//@TODO replace with when web component is connected
 window.addEventListener('DOMContentLoaded', (event) => {
     console.log('DOM fully loaded and parsed');    
 
@@ -285,4 +287,5 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
     // to_RGB((0,360,1), saturation_widget.value, lightness_widget.value);
     interact(from_RGB, {Red:[0,255,1], Green:[0,255,1], Blue:[0,255,1]});
+    interact(to_RGB, {Hue:[0,360,1], Saturation:saturation_widget, Lightness:lightness_widget}); 
 });
