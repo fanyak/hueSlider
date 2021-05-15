@@ -71,6 +71,10 @@ function name_this_colour(Hue, Saturation, Lightness) {
 //@REMOVE TEST
 //console.log(name_this_colour(2557, 1, 100));
 
+function show_color(Red, Green, Blue) {
+    document.querySelector('.show_color').style.background = `rgb(${Red},${Green},${Blue})`;
+}
+
 
 function from_RGB(Red, Green, Blue) {
     const rgb_255 = [Red,Green,Blue];
@@ -91,7 +95,11 @@ function from_RGB(Red, Green, Blue) {
     //     var m = Number((Math.abs(num) * 100).toPrecision(15));
     //     return Math.round(m) / 100 * Math.sign(num);
     // };
-    console.log(`Chromaticness: ${twof(Chromaticness*100)}%, Whiteness: ${twof(Whiteness*100)}%, Blackness: ${twof(Blackness*100)}%`);
+    const rgb_header_1_text = `Chromaticness: ${twof(Chromaticness*100)}%, Whiteness: ${twof(Whiteness*100)}%, Blackness: ${twof(Blackness*100)}%`;
+    const rgb_header_1_el = document.querySelector('#RGB_header_1');
+    console.log(rgb_header_1_el);
+    rgb_header_1_el.textContent = rgb_header_1_text;
+    console.log(rgb_header_1_text);
     
     // calculate Hue, Saturation and Lightness
     if(Math.max(...rgb_percent) == Math.min(...rgb_percent)) {
@@ -108,16 +116,27 @@ function from_RGB(Red, Green, Blue) {
     const Saturation = Chromaticness;
     
     // print("Hue: %.2f, Saturation: %.2f%%, Lightness: %.2f%%" % (Hue, Saturation*100, Lightness*100))
-    console.log(`Hue: ${twof(Hue)}, Saturation: ${twof(Saturation*100)}%, Lightness: ${twof(Lightness*100)}%`);
+    const rgb_header_2_text = `Hue: ${twof(Hue)}, Saturation: ${twof(Saturation*100)}%, Lightness: ${twof(Lightness*100)}%`;
+    const rgb_header_2_el = document.querySelector('#RGB_header_2');
+    rgb_header_2_el.textContent = rgb_header_2_text;
+    console.log(rgb_header_2_text);
+
 
     //@TODO IN HTML Visualize the colour
-    // show_color(Red, Green, Blue);
+    show_color(Red, Green, Blue);
     
     // Name the colour
-    console.log(`This colour is named: ${name_this_colour(Hue,Saturation,Lightness)}`);
+    const rgb_header_3_text = `This colour is named: ${name_this_colour(Hue,Saturation,Lightness)}`;
+    const rgb_header_3_el = document.querySelector('#RGB_header_3');
+    rgb_header_3_el.textContent = rgb_header_3_text;
+    console.log(rgb_header_3_text);
+
     return null;
-}    
+}  
+
 from_RGB(59, 179, 159);
+
+
 
 // this function gives the RGB values for 'pure colours'. it is a helper function that's used in the chsl2rgb function
 function pure_hue(hue) {
@@ -134,5 +153,26 @@ function pure_hue(hue) {
     return 0;
 }
 
+function update_lightness_range(saturation_widget, lightness_widget, evt) {
+    console.log(evt);
+    lightness_widget.min = 0.5 * saturation_widget.value;
+    lightness_widget.max = 1 - 0.5 * saturation_widget.value;
+}
+
+
 console.log(pure_hue(0.20));
 
+window.addEventListener('DOMContentLoaded', (event) => {
+    console.log('DOM fully loaded and parsed');
+
+    // define widgets with constraints for the following interaction
+    const Saturation_slider = document.querySelector('#Saturation_slider');
+    const Lightness_slider = document.querySelector('#Lightness_slider');
+
+    //@TODO remove the listeners when the web component unloads !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    Lightness_slider.addEventListener('change', (evt) => {
+        console.log(evt);
+    });
+    const observe = update_lightness_range.bind(null, Saturation_slider, Lightness_slider);
+    Saturation_slider.addEventListener('change',  observe);
+});

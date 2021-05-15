@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<head>
+    <title>Hue Slider</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        .show_color {
+            width: 300px;
+            height: 300px;
+        }
+    </style>
+    <body>
+
+        <div class="fromRGB">
+            <div id="RGB_header_1"></div>
+            <div id="RGB_header_2"></div>
+            <div class="show_color"> </div>
+            <div id="RGB_header_3"></div>
+        </div>
+
+        <div>
+            <label for="volume">Saturation</label>
+            <input type="range" id="Saturation_slider" min="0" max="1" value="0" step="0.01">
+
+            <label for="volume">Lightness</label>
+            <input type="range" id="Lightness_slider" min="0" max="1" value="0" step="0.01">
+        </div>
+
+
+    <script src="app.js"></script>
+
+    </body>
+</head>
