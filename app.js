@@ -116,10 +116,23 @@ function from_RGB(Red, Green, Blue) {
     // Name the colour
     console.log(`This colour is named: ${name_this_colour(Hue,Saturation,Lightness)}`);
     return null;
-}
-
-    
+}    
 from_RGB(59, 179, 159);
 
+// this function gives the RGB values for 'pure colours'. it is a helper function that's used in the chsl2rgb function
+function pure_hue(hue) {
+    hue = hue % 1.0;
+    if (hue < 1/6) {
+        return hue*6.0;
+    }
+    if (hue < 0.5){
+        return 1;
+    }
+    if (hue < 2/3) {
+        return (2/3-hue)*6.0;
+    }
+    return 0;
+}
 
+console.log(pure_hue(0.20));
 
