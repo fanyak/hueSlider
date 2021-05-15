@@ -4,27 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-        .show_color {
+        .from_RGB_showColor {
             width: 300px;
             height: 300px;
+        }
+        label {
+            display:block;
         }
     </style>
     <body>
 
-        <div class="fromRGB">
-            <div id="RGB_header_1"></div>
-            <div id="RGB_header_2"></div>
-            <div class="show_color"> </div>
-            <div id="RGB_header_3"></div>
-        </div>
+        <rbg-widget></rbg-widget>
 
-        <div>
-            <label for="volume">Saturation</label>
-            <input type="range" id="saturation_widget" min="0" max="1" value="0" step="0.01">
-
-            <label for="volume">Lightness</label>
-            <input type="range" id="lightness_widget" min="0" max="1" value="0" step="0.01">
-        </div>
+       
 
 
     <script src="app.js"></script>

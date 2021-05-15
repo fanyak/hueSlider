@@ -71,8 +71,8 @@ function name_this_colour(Hue, Saturation, Lightness) {
 //@REMOVE TEST
 //console.log(name_this_colour(2557, 1, 100));
 
-function show_color(Red, Green, Blue) {
-    document.querySelector('.show_color').style.background = `rgb(${Red},${Green},${Blue})`;
+function show_color(Red, Green, Blue, cl) {
+    document.querySelector(`.${cl}_showColor`).style.background = `rgb(${Red},${Green},${Blue})`;
 }
 
 const twof = (num) => num.toFixed(2);// (Math.round(num + 'e+2')  + 'e-2');    
@@ -96,7 +96,7 @@ function from_RGB(Red, Green, Blue) {
     const Blackness = 1 - Chromaticness - Whiteness;
     
     const rgb_header_1_text = `Chromaticness: ${twof(Chromaticness*100)}%, Whiteness: ${twof(Whiteness*100)}%, Blackness: ${twof(Blackness*100)}%`;
-    const rgb_header_1_el = document.querySelector('#RGB_header_1');
+    const rgb_header_1_el = document.querySelector('#from_RGB_title_1');
     console.log(rgb_header_1_el);
     rgb_header_1_el.textContent = rgb_header_1_text;
     console.log(rgb_header_1_text);
@@ -117,24 +117,22 @@ function from_RGB(Red, Green, Blue) {
     
     // print("Hue: %.2f, Saturation: %.2f%%, Lightness: %.2f%%" % (Hue, Saturation*100, Lightness*100))
     const rgb_header_2_text = `Hue: ${twof(Hue)}, Saturation: ${twof(Saturation*100)}%, Lightness: ${twof(Lightness*100)}%`;
-    const rgb_header_2_el = document.querySelector('#RGB_header_2');
+    const rgb_header_2_el = document.querySelector('#from_RGB_title_2');
     rgb_header_2_el.textContent = rgb_header_2_text;
-    console.log(rgb_header_2_text);
 
 
     //@TODO IN HTML Visualize the colour
-    show_color(Red, Green, Blue);
+    show_color(Red, Green, Blue, 'from_RGB');
     
     // Name the colour
     const rgb_header_3_text = `This colour is named: ${name_this_colour(Hue,Saturation,Lightness)}`;
-    const rgb_header_3_el = document.querySelector('#RGB_header_3');
+    const rgb_header_3_el = document.querySelector('#from_RGB_title_3');
     rgb_header_3_el.textContent = rgb_header_3_text;
-    console.log(rgb_header_3_text);
 
     return null;
 }  
 
-from_RGB(59, 179, 159);
+//from_RGB(59, 179, 159);
 
 // this function gives the RGB values for 'pure colours'. it is a helper function that's used in the chsl2rgb function
 function pure_hue(hue) {
@@ -152,6 +150,11 @@ function pure_hue(hue) {
 }
 
 console.log(pure_hue(0.20));
+
+
+// define widgets with constraints for the following interaction
+const saturation_widget = createSlider('to_RGB', 'saturation', [0, 1, 0.01]);
+const lightness_widget = createSlider('to_RGB', 'lightness', [0, 1, 0.01]);
 
 function update_lightness_range(saturation_widget, lightness_widget, evt) {
     console.log(evt);
@@ -181,22 +184,105 @@ function to_RGB(Hue,Saturation,Lightness) {
 }
 
 
-window.addEventListener('DOMContentLoaded', (event) => {
-    console.log('DOM fully loaded and parsed');
 
-    // define widgets with constraints for the following interaction
-    const saturation_widget = document.querySelector('#saturation_widget');
-    const lightness_widget = document.querySelector('#lightness_widget');
+//When you pass a function as the first argument to the function interact, along with named arguments, 
+// a slider is generated and bound to the function parameter.
+
+const rgbWidget = document.querySelector('rgb-widget');
+
+function interact(fn, widget_params) { 
+    
+    const widgetHolder = document.createElement('DIV');
+
+    const getValues = () => {
+        const groupSliders = document.querySelectorAll(`input[id^="${fn.name}_widget_"]`);
+        console.log(groupSliders);
+        return Array.from(groupSliders).map((slider) => slider.value);                
+    };
+
+    Object.keys(widget_params).forEach(key => {
+        let slider;
+        // if we are passing a slider element
+        // if(widget_params[key] instanceof HTMLElement) {
+        //     slider = widget_params[key];
+        // } // if  we are passing an array
+        // else 
+        if(Array.isArray(widget_params[key])) {
+          slider = createSlider(fn.name, key, widget_params[key]);
+        } else {
+            // add new type in the future
+        }
+        //@TODO remove EventListeners when we remove the component
+        // add the EventListeners   
+        
+        slider.addEventListener('change', (evt) => {
+            fn(... getValues());
+        });
+
+        const label = createLabel(key);
+        label.appendChild(slider);
+
+        widgetHolder.appendChild(label);
+    });
+
+    const details = createDetails(fn.name);
+    widgetHolder.appendChild(details);
+    document.body.appendChild(widgetHolder);
+    fn(...getValues());
+}
+
+function createLabel(key) {
+    // create the label
+    const label = document.createElement('LABEL');
+    const title = document.createTextNode(key.toUpperCase());        
+    label.appendChild(title);
+    return label;
+}
+
+
+function createSlider(name, key, [min,max,step]){       
+        
+    // create the slider;
+    const slider = document.createElement('INPUT');
+    slider.setAttribute('type', 'range');
+    slider.setAttribute('min', min);
+    slider.setAttribute('max', max);
+    slider.setAttribute('value', Math.floor(max/2));
+    slider.setAttribute('step', step);
+    slider.setAttribute('id', `${name}_widget_${key.toLowerCase()}`);
+    return slider;
+}
+
+function createDetails(name) {
+    const detailsHolder = document.createElement('DIV');
+    detailsHolder.setAttribute('id', name);
+
+    const title1 = document.createElement('DIV');
+    title1.setAttribute('id', `${name}_title_1`);
+    const title2 = document.createElement('DIV');
+    title2.setAttribute('id', `${name}_title_2`);
+    const showColor = document.createElement('DIV');
+    showColor.setAttribute('class', `${name}_showColor`);
+    const title3 = document.createElement('DIV');
+    title3.setAttribute('id', `${name}_title_3`);
+
+    detailsHolder.appendChild(title1);
+    detailsHolder.appendChild(title2);
+    detailsHolder.appendChild(showColor);
+    detailsHolder.appendChild(title3);
+
+    return detailsHolder;
+}
+
+
+window.addEventListener('DOMContentLoaded', (event) => {
+    console.log('DOM fully loaded and parsed');    
 
     //@TODO remove the listeners when the web component unloads !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    lightness_widget.addEventListener('input', (evt) => {
-        console.log(evt);
-        to_RGB((0,360,1), saturation_widget.value, lightness_widget.value);
-
-    });
+    
     const observe = update_lightness_range.bind(null, saturation_widget, lightness_widget);
     saturation_widget.addEventListener('input',  observe);
 
-    to_RGB((0,360,1), saturation_widget.value, lightness_widget.value);
-
+    // to_RGB((0,360,1), saturation_widget.value, lightness_widget.value);
+    interact(from_RGB, {Red:[0,255,1], Green:[0,255,1], Blue:[0,255,1]});
 });
