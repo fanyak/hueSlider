@@ -75,6 +75,11 @@ function show_color(Red, Green, Blue) {
     document.querySelector('.show_color').style.background = `rgb(${Red},${Green},${Blue})`;
 }
 
+const twof = (num) => num.toFixed(2);// (Math.round(num + 'e+2')  + 'e-2');    
+    // const twof = (num) => {
+    //     var m = Number((Math.abs(num) * 100).toPrecision(15));
+    //     return Math.round(m) / 100 * Math.sign(num);
+    // };
 
 function from_RGB(Red, Green, Blue) {
     const rgb_255 = [Red,Green,Blue];
@@ -89,12 +94,7 @@ function from_RGB(Red, Green, Blue) {
     const Chromaticness = Math.max(...rgb_percent) - Math.min(...rgb_percent);
     const Whiteness = Math.max(...rgb_percent) - Chromaticness;
     const Blackness = 1 - Chromaticness - Whiteness;
-
-    const twof = (num) => num.toFixed(2);// (Math.round(num + 'e+2')  + 'e-2');    
-    // const twof = (num) => {
-    //     var m = Number((Math.abs(num) * 100).toPrecision(15));
-    //     return Math.round(m) / 100 * Math.sign(num);
-    // };
+    
     const rgb_header_1_text = `Chromaticness: ${twof(Chromaticness*100)}%, Whiteness: ${twof(Whiteness*100)}%, Blackness: ${twof(Blackness*100)}%`;
     const rgb_header_1_el = document.querySelector('#RGB_header_1');
     console.log(rgb_header_1_el);
@@ -136,8 +136,6 @@ function from_RGB(Red, Green, Blue) {
 
 from_RGB(59, 179, 159);
 
-
-
 // this function gives the RGB values for 'pure colours'. it is a helper function that's used in the chsl2rgb function
 function pure_hue(hue) {
     hue = hue % 1.0;
@@ -153,26 +151,52 @@ function pure_hue(hue) {
     return 0;
 }
 
+console.log(pure_hue(0.20));
+
 function update_lightness_range(saturation_widget, lightness_widget, evt) {
     console.log(evt);
-    lightness_widget.min = 0.5 * saturation_widget.value;
-    lightness_widget.max = 1 - 0.5 * saturation_widget.value;
+    function update() {
+        lightness_widget.min = 0.5 * saturation_widget.value;
+        lightness_widget.max = 1 - 0.5 * saturation_widget.value;
+    }
+    window.requestAnimationFrame(update);
 }
 
+function to_RGB(Hue,Saturation,Lightness) {
+   const  [r,g,b] = [pure_hue(Hue/360+1/3)*255, pure_hue(Hue/360)*255, pure_hue(Hue/360-1/3)*255];
+    console.log('RGB values for fully saturated colour:', parseInt(r),parseInt(g),parseInt(b));
+    
+    const Chromaticness = Saturation;
+    const Whiteness = Lightness - Saturation/2;
+    const Blackness = 1 - Whiteness - Chromaticness;
+    console.log(`Chromaticness: ${twof(Chromaticness*100)}%, Whiteness: ${twof(Whiteness*100)}%, Blackness: ${Blackness*100}%`);
+    
+    const Red = parseInt(r*Saturation + Whiteness * 255);
+    const Green = parseInt(g*Saturation + Whiteness * 255);
+    const Blue = parseInt(b*Saturation + Whiteness * 255);
+    console.log(`RGB values: Red: ${Red}, Green: ${Green}, Blue: ${Blue}`);
+    show_color(Red, Green, Blue);
+    console.log(`This colour is named: ${name_this_colour(Hue,Saturation,Lightness)}`);
+    return null;
+}
 
-console.log(pure_hue(0.20));
 
 window.addEventListener('DOMContentLoaded', (event) => {
     console.log('DOM fully loaded and parsed');
 
     // define widgets with constraints for the following interaction
-    const Saturation_slider = document.querySelector('#Saturation_slider');
-    const Lightness_slider = document.querySelector('#Lightness_slider');
+    const saturation_widget = document.querySelector('#saturation_widget');
+    const lightness_widget = document.querySelector('#lightness_widget');
 
     //@TODO remove the listeners when the web component unloads !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    Lightness_slider.addEventListener('change', (evt) => {
+    lightness_widget.addEventListener('input', (evt) => {
         console.log(evt);
+        to_RGB((0,360,1), saturation_widget.value, lightness_widget.value);
+
     });
-    const observe = update_lightness_range.bind(null, Saturation_slider, Lightness_slider);
-    Saturation_slider.addEventListener('change',  observe);
+    const observe = update_lightness_range.bind(null, saturation_widget, lightness_widget);
+    saturation_widget.addEventListener('input',  observe);
+
+    to_RGB((0,360,1), saturation_widget.value, lightness_widget.value);
+
 });
