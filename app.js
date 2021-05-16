@@ -1,5 +1,9 @@
 ( () => {
 
+    const show_color_width ='100%';
+    const show_color_height = '100px';
+    const listeners = [];
+
     function name_this_colour(Hue, Saturation, Lightness) {
 
         /**
@@ -112,7 +116,7 @@
 
     function from_RGB(Red, Green, Blue) {
         const rgb_255 = [Red,Green,Blue].map((c) => Number(c));
-        console.log(Red, Green, Blue);
+        // console.log(Red, Green, Blue);
 
         const rgb_percent = rgb_255.map(el => el / 255);
         const diff = Math.max(...rgb_percent)-Math.min(...rgb_percent);
@@ -180,7 +184,7 @@
     const lightness_widget = create_slider(to_RGB, 'lightness', [0, 1, 0.01]);
 
     function update_lightness_range(evt) {
-        console.log(evt);
+        // console.log(evt);
         const update = () => {
             lightness_widget.min = 0.5 * Number(saturation_widget.value);
             lightness_widget.max = 1 - 0.5 * Number(saturation_widget.value);
@@ -189,10 +193,10 @@
     }
 
     saturation_widget.addEventListener('input',  update_lightness_range);
-
+    listeners.push([saturation_widget, update_lightness_range, 'input']);
 
     function to_RGB(Hue, Saturation, Lightness) {
-        console.log(typeof(Hue),typeof(Saturation), typeof(Lightness));
+        // console.log(typeof(Hue),typeof(Saturation), typeof(Lightness));
         const  [r,g,b] = [pure_hue(Hue/360+1/3)*255, pure_hue(Hue/360)*255, pure_hue(Hue/360-1/3)*255];   
         
         const Chromaticness = Saturation;
@@ -216,21 +220,32 @@
         display_text(to_RGB,3, rgb_header_3_text);
 
         return null;
+    } 
+    /**
+     * get the current values of the sliders that interact with a function and display then
+     * @param {Function} fn is the Function that the sliders interact with     
+     */
+    function display_slider_values(fn, target)  {
+        const groupSliders = document.querySelectorAll(`input[id^="${fn.name}_widget_"]`);
+        const values = Array.from(groupSliders).map((slider) => Number(slider.value));
+        if(target) {
+            const span = document.querySelector(`.${target.id}_value`);
+            span.textContent = target.value;
+        } else {
+            console.log(groupSliders);
+        }
+        fn(...values);
     }
 
     /**
      * Create a slider Widget
      * @param {Function} fn which function we are interacting with (i.e from_rgb or to_rgb)
      * @param {Object} widget_params The keys are the properties of the slider (hue, red, green, saturation etc)
-     * If the value of a widget_param[key] id a slider or [min,max,step]
+     * the value of a widget_param[key] is an already crated slider or [min,max,step]
      */
     function interact(fn, widget_params) { 
         
-        const slider_holder = document.createElement('DIV');
-        const get_slider_values = () => {
-            const groupSliders = document.querySelectorAll(`input[id^="${fn.name}_widget_"]`);
-            return Array.from(groupSliders).map((slider) => Number(slider.value));                
-        };
+        const slider_holder = document.createElement('DIV');        
 
         Object.keys(widget_params).forEach( key => {
             let slider;
@@ -244,43 +259,85 @@
             }
 
             //@TODO remove EventListeners when we remove the component
-            // add the EventListeners        
-            slider.addEventListener('change', (_) => fn(... get_slider_values()) );
+            // add the EventListeners 
+            const input_observer = (evt) => display_slider_values(fn, evt.target);
+            
+            slider.addEventListener('input', input_observer, true);
+            listeners.push([slider, input_observer, 'input']);
 
+            const value_holder = document.createElement('DIV');
             const label = create_slider_label(key);
+            const value_box = document.createElement('SPAN');
+            value_box.classList.add(`${fn.name}_widget_${key.toLowerCase()}_value`);
             label.appendChild(slider);
-            slider_holder.appendChild(label);
+            value_holder.appendChild(label);
+            value_holder.appendChild(value_box);
+            slider_holder.appendChild(value_holder);
         });
 
         const details = create_slider_details(fn.name);
         slider_holder.appendChild(details);
         document.body.appendChild(slider_holder);
-        fn(...get_slider_values());
+        display_slider_values(fn);
     }
 
-    function create_slider_label(key) {
-        // create the label
+
+    // Make the interactions
+     interact(to_RGB, { Hue:[0,360,1], Saturation:saturation_widget, Lightness:lightness_widget }); 
+     interact(from_RGB, { Red:[0,255,1], Green:[0,255,1], Blue:[0,255,1] });
+ 
+
+    // ************************ FUNCTIONS TO DISPLAY THE WIDGET INSIDE THE WEB PAGE ************************ //
+
+    
+    /**
+     * Create a slider inside the page
+     * @param {Funtion} fn  which function the slide is for
+     * @param {string} key  what property is the slider dipslayng
+     * @param {list[min,max,step]} param2 Default range is 0 to 100 if we don't pass the list
+     * @returns 
+     */
+
+    function create_slider(fn, key, [min,max,step]) { 
+        // create the slider;
+        const slider = document.createElement('INPUT');
+        slider.setAttribute('type', 'range');
+        if(min != undefined) {
+         slider.setAttribute('min', min);
+        }
+        if(max!= undefined) {
+            slider.setAttribute('max', max);
+            slider.setAttribute('value', Math.floor(max/2));
+        }
+        if(step != undefined){
+            slider.setAttribute('step', step);
+        }
+        slider.setAttribute('id', `${fn.name}_widget_${key.toLowerCase()}`);
+        return slider;
+    }
+    /**
+     * Create the label (name to display in the page for the slider)
+     * @param {string} key 
+     * @returns 
+     */
+    function create_slider_label(key) {        
+        // create the label with a capitalized 1st letter
+        const capitalize = (s) => s[0].toUpperCase() + s.slice(1);
         const label = document.createElement('LABEL');
-        const label_text = document.createTextNode(key.toUpperCase());        
+        const label_text = document.createTextNode(capitalize(key));        
         label.appendChild(label_text);
         return label;
     }
 
-    function create_slider(fn, key, [min,max,step]){ 
-        // create the slider;
-        const slider = document.createElement('INPUT');
-        slider.setAttribute('type', 'range');
-        slider.setAttribute('min', min);
-        slider.setAttribute('max', max);
-        slider.setAttribute('value', Math.floor(max/2));
-        slider.setAttribute('step', step);
-        slider.setAttribute('id', `${fn.name}_widget_${key.toLowerCase()}`);
-        return slider;
-    }
-
+    /**
+     * Create the elements to display the details of sliders inside the page
+     * @param {string} name the name of the function that the elements belong to
+     * @returns 
+     */
+   
     function create_slider_details(name) {
-        const detailsHolder = document.createElement('DIV');
-        detailsHolder.setAttribute('id', name);
+        const details_holder = document.createElement('DIV');
+        details_holder.setAttribute('id', name);
 
         const title1 = document.createElement('DIV');
         title1.setAttribute('id', `${name}_text_1`);
@@ -288,28 +345,26 @@
         title2.setAttribute('id', `${name}_text_2`);
         const showColor = document.createElement('DIV');
         showColor.setAttribute('class', `${name}_showColor`);
+        showColor.style.width = `${show_color_width}` ;
+        showColor.style.height =`${show_color_height}`;
         const title3 = document.createElement('DIV');
         title3.setAttribute('id', `${name}_text_3`);
 
-        detailsHolder.appendChild(title1);
-        detailsHolder.appendChild(title2);
-        detailsHolder.appendChild(showColor);
-        detailsHolder.appendChild(title3);
-        return detailsHolder;
+        details_holder.appendChild(title1);
+        details_holder.appendChild(title2);
+        details_holder.appendChild(showColor);
+        details_holder.appendChild(title3);
+        return details_holder;
     }
 
+    /**
+     * Remove all eventListeners when we leave the web page
+     */
+    document.addEventListener('visibilitychange', function logData() {
+        if (document.visibilityState === 'hidden') {            
+            listeners.forEach(([el,fn,ac]) => el.removeEventListener(`${ac}`, fn, true));
+        }
+      });
+
    
-
-
-    //@TODO replace with when web component is connected
-    window.addEventListener('DOMContentLoaded', (event) => {
-        console.log('DOM fully loaded and parsed');    
-
-        //@TODO remove the listeners when the web component unloads !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        
-      
-        // to_RGB((0,360,1), saturation_widget.value, lightness_widget.value);
-        interact(from_RGB, { Red:[0,255,1], Green:[0,255,1], Blue:[0,255,1] });
-        interact(to_RGB, { Hue:[0,360,1], Saturation:saturation_widget, Lightness:lightness_widget }); 
-    });
 })();
