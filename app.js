@@ -1,23 +1,15 @@
 ( () => {
 
     const component = document.querySelector('rgb-widget');
-    // if <rgb-widget> hasn't been added to the HTML, then we don't know where display the widget -> we abort
+
+    // if <rgb-widget> hasn't been added to the HTML, then we don't know where to display the widget -> we abort
     if(!component) {
         return;
     }    
-
     // list of eventListeners
     const listeners = []; 
 
-    function name_this_colour(Hue, Saturation, Lightness) {
-
-        /**
-         * Define min operation.
-         *
-         * @param {Map} dict the dictionary for Hues.
-         * @param {number} prop the key of the dictionary.
-         * @return {Map} sorted ascending.
-         */
+    function name_this_colour(Hue, Saturation, Lightness) {        
         const min = (dict, prop) =>  [...Array.from(dict.keys())].sort((a,b) => Math.abs(a-prop) - Math.abs(b-prop));
 
         // hue name
@@ -120,8 +112,7 @@
     };
 
     function from_RGB(Red, Green, Blue) {
-        const rgb_255 = [Red,Green,Blue].map((c) => Number(c));
-        // console.log(Red, Green, Blue);
+        const rgb_255 = [Red,Green,Blue];
 
         const rgb_percent = rgb_255.map(el => el / 255);
         const diff = Math.max(...rgb_percent)-Math.min(...rgb_percent);
@@ -168,7 +159,7 @@
 
     // this function gives the RGB values for 'pure colours'. it is a helper function that's used in the chsl2rgb function
     function pure_hue(hue) {
-        hue = hue > 0 ? hue : (1+hue);
+        hue = hue > 0 ? hue %1.0 : (1+hue) %1.0;
         if (hue < 1/6) {
             return hue*6.0;
         }
@@ -189,13 +180,24 @@
     const lightness_widget = create_slider(to_RGB, 'lightness', [0, 1, 0.01]);
 
     function update_lightness_range(target) {       
-        lightness_widget.min = 0.5 * Number(target.value);
-        lightness_widget.max = 1 - 0.5 * Number(target.value);
+        const min = 0.5 * Number(target.value);
+        const max =  1 - 0.5 * Number(target.value); 
+        const current = lightness_widget.getAttribute('value');
+        lightness_widget.setAttribute ('min', min);
+        lightness_widget.setAttribute('max', max);
+        const update = () => {            
+            if( current > max) {
+                lightness_widget.setAttribute('value', max); 
+            } else if(current < min) {
+                lightness_widget.setAttribute('value', min);
+            } else {
+                lightness_widget.setAttribute('value', current);
+            }            
+        };
+        window.requestAnimationFrame(update);        
         display_slider_values(to_RGB);        
-    }
-
-    // saturation_widget.addEventListener('input',  update_lightness_range);
-    // listeners.push([saturation_widget, update_lightness_range, 'input']);
+    } 
+    
 
     function to_RGB(Hue, Saturation, Lightness) {
         const  [r,g,b] = [pure_hue(Hue/360+1/3)*255, pure_hue(Hue/360)*255, pure_hue(Hue/360-1/3)*255];   
@@ -227,16 +229,16 @@
      * @param {Function} fn is the Function that the sliders interact with     
      */
     function display_slider_values(fn, target)  {
+        if(target && target == saturation_widget){
+            update_lightness_range(target);
+            return;
+        }
         // console.log(target);
         const sliderNodes = document.querySelectorAll(`input[id^="${fn.name}_widget_"]`);
         const sliderList = Array.from(sliderNodes);
         const values = sliderList.map((slider) => Number(slider.value));
 
-        if(target) {
-            if(target == saturation_widget){
-                update_lightness_range(target);
-                return;
-            }
+        if(target) {            
             const span = document.querySelector(`.${target.id}_value`);
             span.textContent = twof(Number(target.value));
         } else {
@@ -272,7 +274,10 @@
 
             //@TODO remove EventListeners when we remove the component
             // add the EventListeners 
-            const input_observer = (evt) => display_slider_values(fn, evt.target);
+            const input_observer = (evt) => {
+                evt.stopPropagation();                
+                display_slider_values(fn, evt.target);
+            };
             
             slider.addEventListener('input', input_observer, true);
             listeners.push([slider, input_observer, 'input']);
@@ -296,12 +301,11 @@
 
     // Make the interactions
      interact(to_RGB, { Hue:[0,360,1], Saturation:saturation_widget, Lightness:lightness_widget }); 
-     interact(from_RGB, { Red:[0,255,1], Green:[0,255,1], Blue:[0,255,1] });
-     set_styles();
-
+     interact(from_RGB, { Red:[0,255,1], Green:[0,255,1], Blue:[0,255,1] });  
 
     // ************************ FUNCTIONS TO DISPLAY THE WIDGET INSIDE THE WEB PAGE ************************ //
 
+    set_styles();
     
     /**
      * Create a slider inside the page
@@ -399,6 +403,7 @@
         const inputs = document.querySelectorAll('rgb-widget > div input[type="range"]');
         Array.from(inputs).forEach(input => {
             input.style.width = '130px';
+            input.style.outlineWidth = '0';
         });
         const spans = document.querySelectorAll('rgb-widget > div label+span');
         Array.from(spans).forEach(span => { 
@@ -413,13 +418,13 @@
         const titles = document.querySelectorAll('rgb-widget div[id*="RGB_text_"]');
         Array.from(titles).forEach(title => {
             title.style.lineHeight = '1.2';
-            title.style.fontSize = '0.998rem';
+            title.style.fontSize = '0.997rem';
         });
         const colorDivs= document.querySelectorAll('rgb-widget div[class*="_RGB_showColor"]');
-        console.log(colorDivs);
         Array.from(colorDivs).forEach(colorDiv => {
             colorDiv.style.width = `${show_color_width}` ;
             colorDiv.style.height =`${show_color_height}`;
+            colorDiv.style.margin = '10px 0 10px 0';
         });
         
     }
@@ -427,11 +432,8 @@
     /**
      * Remove all eventListeners when we leave the web page
      */
-    document.addEventListener('visibilitychange', function logData() {
-        if (document.visibilityState === 'hidden') {            
-            listeners.forEach(([el,fn,ac]) => el.removeEventListener(`${ac}`, fn, true));
-        }
-      });
+    document.addEventListener('beforeunload', function logData() {
+        listeners.forEach(([el,fn,ac]) => el.removeEventListener(`${ac}`, fn, true));        
+    });
 
-   
 })();
