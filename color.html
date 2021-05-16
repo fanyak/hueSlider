@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2, user-scalable=no">
+    <title>Steve Walesch Analytics - Colour Project</title>
+    <link rel="stylesheet" type="text/css" href="https://stevewalesch.lu/analytics/semantic/dist/semantic.min.css">
+  <link rel="stylesheet" href="https://use.typekit.net/bjv7vua.css">
+  <style type="text/css">
+  
+        #footer {
+          position: fixed;
+          bottom: 0;
+          width: 100%;
+          height: 10px;
+          background-color: #2CA736;
+        }
+  
+      </style>
+  
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
+      <script>
+        $(document).ready(function() {
+          $(".ui.toggle.button").click(function() {
+            $(".mobile.only.grid .ui.vertical.menu").toggle(100);
+          });
+  
+          $(".ui.dropdown").dropdown();
+        });
+      </script>
+  </head>
+  
+  <body id="root">
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+    <script src="https://stevewalesch.lu/analytics/semantic/dist/semantic.min.js"></script>
+  
+    
+    <div class="ui green tablet computer only padded grid">
+  
+      <div class="ui green top fixed borderless massive menu">
+  
+        <div><img src="https://stevewalesch.lu/analytics/assets/SWA_HO_2021_menu.svg" alt="Steve Walesch Analytics Logo" height="60"></div>
+        <a class="item" href="https://stevewalesch.lu/analytics/index.html">Home</a>
+          <a class="item" href="https://stevewalesch.lu/analytics/about.html">About</a>
+        <div class="ui dropdown item" style="color:#2CA736; background-color:#F2F2F2" tabindex="0">
+          <!-- <div class="active ui dropdown item"> -->
+        Projects
+        <i class="dropdown icon"></i>
+          <div class="menu" tabindex="-1">
+            <a class="item" href="https://stevewalesch.lu/analytics/overview.html">Overview</a>
+            <a class="active item" href="https://stevewalesch.lu/analytics/colour.html">Colour Project</a>
+          </div>
+      </div>
+      <a class="item" href="https://stevewalesch.lu/analytics/contact.html">Contact</a>
+      </div>
+  
+        <div class="ui container">
+          <h1 class="ui dividing huge header"></h1>
+          <p class="lead"></p>
+        </div>
+      </div>
+  
+      <div class="ui green inverted mobile only grid">
+        <div class="ui green inverted top fixed borderless menu">
+          <div class="ui dropdown item" tabindex="0">
+            <button class="ui icon toggle basic button">
+            <i class="white content icon"></i> </button>&nbsp; Colour Project
+              <div class="menu" tabindex="-1">
+                    <a class="item" href="https://stevewalesch.lu/analytics/index.html">Home</a>
+                    <a class="item" href="https://stevewalesch.lu/analytics/about.html">About</a>
+                    <div class="ui divider"></div>
+                    <div class="header">Projects</div>
+                    <a class="item" href="https://stevewalesch.lu/analytics/overview.html">Projects Overview</a>
+                    <a class="active item">Colour Project</a>
+                    <div class="ui divider"></div>
+                    <a class="item" href="https://stevewalesch.lu/analytics/contact.html">Contact</a>
+              </div>
+            </div>
+          </div>
+      </div>
+  
+      <div class="ui container">
+        <h1 class="ui dividing header"></h1>
+        <p class="lead"></p>
+      </div>
+  
+    <div class="ui center aligned container">
+      <img src="https://stevewalesch.lu/analytics/assets//SWA_VO_2021.svg" alt="Steve Walesch Analytics Logo" style="width:300px;">
+    </div>
+  
+  <div class="ui justified text container">
+    <h2 class="ui header">The Basics of Colour Theory, a Constrained HSL Model and the Walesch Colour Naming System</h2>
+  
+  <a href="https://stevewalesch.lu/analytics/assets/Colour.pdf"><button class="ui labeled secondary icon button"><i class="file pdf outline icon"></i>Download as PDF</button></a>
+  <h3 class="ui green header">The Basics of Colour Theory</h3>
+  <p><img class="ui small right floated image" src="https://stevewalesch.lu/analytics/assets/bicone.png">
+  Colour is most commonly defined by its hue, saturation and lightness (often called HSL in image editing software). This vision of colour is quite intuitive: the hues are laid out in a circle and we can vary the lightness and saturation for every one of these hues. The entire colour space is thus represented in a bicone.</p>
+  <p>
+  To better understand how this works, we can cut out a triangle for any given hue from this bicone. In the example below, we have a triangle for a magenta-like hue, but we could construct such triangles for any hue in the colour circle.</p>
+  
+  
+  <p>
+  By construction, the hue is fixed in this triangle, but we can vary lightness and saturation.</p>
+  <img class="ui medium left floated image" src="https://stevewalesch.lu/analytics/assets/ostwald_triangle.jpg">
+  
+  
+  <p>The lightness varies from the bottom to the top (from black to white) and the saturation increases from the left (where the colour is grey) to the right (where the colour is fully saturated).</p>
+  
+  <p>This colour triangle was already used by Wilhelm Ostwald, Nobel prize winner and one of the leading figures of the Ido language (more on this probably later on Steve Walesch Analytics) in his colour model in 1916. His Ostwald Colour System was influenced by work of Albert Henry Munsell and in turn influenced many others.</p>
+  
+  <h3 class="ui green header">Constrained HSL Model</h3>
+  
+  Today the concepts of hue, saturation and lightness are very widespread and used in image editing software, where HSL (or the similar HSV) sliders are commonly used.
+  
+  
+  <p>Unfortunately, saturation and lightness are usually not constrained in these sliders: you can configure any saturation you like with maximum lightness, leading to white (or similarly with minimum lightness, leading to black).</p>
+  
+  <p>I wanted to create a similar system, that keeps the basic elements of the HSL model, but that incorporates constraints: </p>
+  
+    <div class="ui green icon message"><i class="lightbulb black icon"></i><div class="content"><p style="color:black">
+  if a colour is fully saturated, it cannot be very light or very dark.
+    </p></div></div>
+  
+  <p>This is obvious by looking at the colour triangles and the bicone.</p>
+  
+  <p>So I started to define all RGB colours by their respective parts of white, black and chroma. The resulting triplet (whiteness, blackness and chromaticness) always sums to exactly one, expressing the fact that all tints, tones and shades can be constructed by mixing white, black and the respective ‘pure colour’. This closely resembles the colour triangle in the Ostwald model as each point defined by this approach lies within the colour triangle for the respective hue.</p>
+  
+  <p>The whiteness, blackness and chromaticness triplet is at the basis of my constrained HSL model. The hues are derived in the same way as in the traditional HSL model. The saturation is simply the percentage of ‘pure colour’ in the colour mix. The lightness is the percentage of white + 1/2 of the percentage of ‘pure colour’. This is explained by the fact that all fully saturated colours lie on the same plane as medium grey (RGB 128, 128, 128) and that medium grey is exactly half the lightness of white.</p>
+  
+  <p>We can thus also put simple constraints on minimum and maximum lightness with respect to saturation:</p>
+  
+    <div class="ui list">
+      <div class="item">
+        <i class="right green triangle icon"></i>
+        <div class="content">
+          <div class="description">if a colour is fully saturated, it is pure and cannot be mixed with black or white, so its lightness is 50% and it cannot take any other value</div></div>
+      </div>
+  
+        <div class="item">
+          <i class="right green triangle icon"></i>
+          <div class="content">
+            <div class="description">if a colour is not saturated at all (i.e. grey-scale) its situated along the black - white axis and can take any lightness, from 0% (black) to 100% (white)</div></div>
+        </div>
+  
+          <div class="item">
+            <i class="right green triangle icon"></i>
+            <div class="content">
+              <div class="description">if a colour is moderately saturated, e.g. 60%, the remaining 40% can be used to mix with white and/or black, resulting in a lightness between 30% (60%/2 from the ‘pure colour’ + 0% from black) and 70% (60%/2 from the ‘pure colour’ + 40% from white).</div></div>
+          </div>
+  </div>
+  
+  <p>This leads to the following rules:</p>
+  
+  <div class="ui green icon message"><i class="pencil black icon"></i><div class="content"><p style="color:black">
+    minimum lightness = saturation / 2
+    <br>
+    maximum lightness = 100% - saturation / 2
+  </p></div></div>
+  
+  <p>I implemented this constrained HSL model in the interactive Jupyter notebook (see below).</p>
+  
+  <h3 class="ui green header">Walesch Colour Naming System</h3>
+  
+  <p>The second contribution I wanted to make, was to devise a colour naming system. I found that most colour naming systems were either too simplistic (having a very limited number of different colours), overly complicated or unstructured. The NCS system (which is great for many professional use cases) for instance uses a cryptic system, where ‘2050Y90R’ is a valid colour name. This is overly complicated for everyday use by lay people. Also, the HTML colour names are unstructured, leading to a large vocabulary of sometimes puzzling colour names: how many people know what the colours Gainsboro, Wisteria and Zinnwaldite look like?</p>
+  
+  <p><img class="ui medium right floated image" src="https://stevewalesch.lu/analytics/assets/colorwheel.png">Why not use qualifiers of saturation and lightness, that most people can easily relate to and combine them with some commonly used names for hues? In my system, I chose to name the primary colours red, green and blue, the secondary colours yellow, cyan and magenta and the following tertiary colours: orange (30° on the colour wheel), chartreuse (90°), jade (150°), azure (210°), violet (270°) and rose (330°).</p>
+  
+  <p>Quaternary colours have no specific names but are composed with the names of the two tertiary colours that are closest to it (e.g. 285° is named ‘violet-magenta’.</p>
+  
+  <p>The lightness of a colour gives it the following qualifiers:</p>
+  
+    <div class="ui list">
+  <div class="item">
+        <i class="right green triangle icon"></i>
+        <div class="content">
+          <div class="description">0%-20% lightness: ‘very dark’</div></div></div>
+  
+  
+        <div class="item">
+          <i class="right green triangle icon"></i>
+          <div class="content">
+            <div class="description">20%-40% lightness: ‘dark’</div></div>
+        </div>
+  
+          <div class="item">
+            <i class="right green triangle icon"></i>
+            <div class="content">
+              <div class="description">40%-60% lightness: no qualifier for medium lightness</div></div>
+          </div>
+  
+          <div class="item">
+            <i class="right green triangle icon"></i>
+            <div class="content">
+              <div class="description">60%-80% lightness: ‘light’</div></div>
+          </div>
+  
+          <div class="item">
+            <i class="right green triangle icon"></i>
+            <div class="content">
+              <div class="description">80%-100% lightness: ‘very light’</div></div>
+          </div>
+      </div>
+  
+  <p>A similar system exists for saturation:</p>
+  
+  <div class="ui list">
+    <div class="item">
+      <i class="right green triangle icon"></i>
+      <div class="content">
+        <div class="description">0%-20% saturation: ‘greyish’</div></div>
+    </div>
+  
+      <div class="item">
+        <i class="right green triangle icon"></i>
+        <div class="content">
+          <div class="description">20%-40% saturation: ‘desaturated’</div></div>
+      </div>
+  
+        <div class="item">
+          <i class="right green triangle icon"></i>
+          <div class="content">
+            <div class="description">40%-60% saturation: ‘muted’</div></div>
+        </div>
+  
+        <div class="item">
+          <i class="right green triangle icon"></i>
+          <div class="content">
+            <div class="description">60%-80% saturation: ‘saturated’</div></div>
+        </div>
+  
+        <div class="item">
+          <i class="right green triangle icon"></i>
+          <div class="content">
+            <div class="description">80%-100% saturation: ‘vivid’</div></div>
+        </div>
+    </div>
+  
+  <p>Note that because of the constraints we spoke about earlier, some combinations do not exist: we cannot have a ‘vivid and very light red’ for example.</p>
+  
+  <p>Two examples of colour names in the Walesch Colour Naming System could be ‘saturated light violet’ and ‘desaturated and very dark orange-yellow’.</p>
+  
+  <p>A special case is when saturation is equal to 0: when lightness is 0, the colour is named ‘black’, when lightness is 1, the colour is named ‘white’. The intermediate lightness levels follow the same logic as for colours with non-zero saturation: very dark grey, dark grey, medium grey, light grey and very light grey.</p>
+  
+  <h3 class="ui green header">Interactive Notebook</h3>
+  
+  <p>In my interactive Jupyter notebook you can have a look at the (Python) code I wrote.</p>
+  
+  <p>It allows you to use RGB sliders and get the corresponding whiteness-blackness-chromaticness triplets, the constrained-HSL values, a colour preview and the name of the colour in the Walesch Colour Naming System.</p>
+  
+  <p>You can also use the sliders of my constrained HSL model and get the RGB values, the colour preview and the name of the colour in the Walesch Colour Naming System.</p>
+  
+  <p>The interactive notebook is available <a href="https://goo.gl/GeGNhz" target="_blank">here</a> or as a <a href="https://stevewalesch.lu/analytics/assets/Colors.ipynb">download</a> (Jupyter notebook).</p>
+  
+  <p>By clicking on ‘cell’ and ‘run all’, you can execute the code and explore the colours with the interactive sliders on the bottom of the page.</p>
+  
+  
+  
+  <p>Screenshot:</p>
+  <!--<img class="ui fluid image" src="https://stevewalesch.lu/analytics/assets/screenshot.jpg">-->
+  <rgb-widget></rgb-widget>
+  
+  &ZeroWidthSpace;
+  
+  
+  <h3 class="ui green header">A Final Note</h3>
+  
+  Please note that this project is mainly pedagogical and that I am not a colour professional.
+  
+  <p>I also think that there are many excellent colour systems out there that cover different use-cases for colour, like the NCS system or the HCL system (very useful for qualitative colour ramps for example). Maybe my constrained HSL model and the Walesch Colour Naming System will find their use cases too.</p>
+  
+  <p>I encourage you for feedback that will allow this project to improve.</p>
+  
+  
+  <div class="ui green icon message"><i class="copyright black icon"></i><div class="content"><p style="color:black">
+  My work on the whiteness-brightness-colourfulness, the constrained HSL model, the Walesch Colour Naming System as well as this document and the interactive Jupyter notebook are released under the ‘Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)’ licence.<br><br><em>November 2017</em><img class="ui tiny right floated image" src="assets/cc_licence.png">
+  </p></div></div>
+  
+  </div>
+  <p>&nbsp;</p>
+  <div id="footer"> </div>
+  
+  
+  <script src="app.js"></script>
+  </body>
+  </html>

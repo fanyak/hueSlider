@@ -1,8 +1,13 @@
 ( () => {
 
-    const show_color_width ='100%';
-    const show_color_height = '100px';
-    const listeners = [];
+    const component = document.querySelector('rgb-widget');
+    // if <rgb-widget> hasn't been added to the HTML, then we don't know where display the widget -> we abort
+    if(!component) {
+        return;
+    }    
+
+    // list of eventListeners
+    const listeners = []; 
 
     function name_this_colour(Hue, Saturation, Lightness) {
 
@@ -163,7 +168,7 @@
 
     // this function gives the RGB values for 'pure colours'. it is a helper function that's used in the chsl2rgb function
     function pure_hue(hue) {
-        hue = hue % 1.0;
+        hue = hue > 0 ? hue : (1+hue);
         if (hue < 1/6) {
             return hue*6.0;
         }
@@ -183,32 +188,28 @@
     const saturation_widget = create_slider(to_RGB, 'saturation', [0, 1, 0.01]);
     const lightness_widget = create_slider(to_RGB, 'lightness', [0, 1, 0.01]);
 
-    function update_lightness_range(evt) {
-        // console.log(evt);
-        const update = () => {
-            lightness_widget.min = 0.5 * Number(saturation_widget.value);
-            lightness_widget.max = 1 - 0.5 * Number(saturation_widget.value);
-        };
-        window.requestAnimationFrame(update);
+    function update_lightness_range(target) {       
+        lightness_widget.min = 0.5 * Number(target.value);
+        lightness_widget.max = 1 - 0.5 * Number(target.value);
+        display_slider_values(to_RGB);        
     }
 
-    saturation_widget.addEventListener('input',  update_lightness_range);
-    listeners.push([saturation_widget, update_lightness_range, 'input']);
+    // saturation_widget.addEventListener('input',  update_lightness_range);
+    // listeners.push([saturation_widget, update_lightness_range, 'input']);
 
     function to_RGB(Hue, Saturation, Lightness) {
-        // console.log(typeof(Hue),typeof(Saturation), typeof(Lightness));
         const  [r,g,b] = [pure_hue(Hue/360+1/3)*255, pure_hue(Hue/360)*255, pure_hue(Hue/360-1/3)*255];   
-        
+
         const Chromaticness = Saturation;
-        const Whiteness = Lightness - Saturation/2;
+        const Whiteness = Lightness - (Saturation/2);
         const Blackness = 1 - Whiteness - Chromaticness;
 
         const rgb_header_1_text = `Chromaticness: ${twof(Chromaticness*100)}%, Whiteness: ${twof(Whiteness*100)}%, Blackness: ${twof(Blackness*100)}%`;       
         display_text(to_RGB, 1, rgb_header_1_text);
 
-        const Red = parseInt(r*Saturation + Whiteness * 255);
-        const Green = parseInt(g*Saturation + Whiteness * 255);
-        const Blue = parseInt(b*Saturation + Whiteness * 255);
+        const Red = Math.floor(r*Saturation + Whiteness * 255);
+        const Green = Math.floor(g*Saturation + Whiteness * 255);
+        const Blue = Math.floor(b*Saturation + Whiteness * 255);
 
         const rgb_header_2_text =`RGB values: Red: ${Red}, Green: ${Green}, Blue: ${Blue}`;       
         display_text(to_RGB, 2 , rgb_header_2_text);
@@ -226,14 +227,25 @@
      * @param {Function} fn is the Function that the sliders interact with     
      */
     function display_slider_values(fn, target)  {
-        const groupSliders = document.querySelectorAll(`input[id^="${fn.name}_widget_"]`);
-        const values = Array.from(groupSliders).map((slider) => Number(slider.value));
+        // console.log(target);
+        const sliderNodes = document.querySelectorAll(`input[id^="${fn.name}_widget_"]`);
+        const sliderList = Array.from(sliderNodes);
+        const values = sliderList.map((slider) => Number(slider.value));
+
         if(target) {
+            if(target == saturation_widget){
+                update_lightness_range(target);
+                return;
+            }
             const span = document.querySelector(`.${target.id}_value`);
-            span.textContent = target.value;
+            span.textContent = twof(Number(target.value));
         } else {
-            console.log(groupSliders);
+            sliderList.forEach((slider) =>  {
+                const span = document.querySelector(`.${slider.id}_value`);
+                span.textContent = twof(Number(slider.value));
+            });
         }
+
         fn(...values);
     }
 
@@ -277,7 +289,7 @@
 
         const details = create_slider_details(fn.name);
         slider_holder.appendChild(details);
-        document.body.appendChild(slider_holder);
+        component.appendChild(slider_holder);
         display_slider_values(fn);
     }
 
@@ -285,7 +297,8 @@
     // Make the interactions
      interact(to_RGB, { Hue:[0,360,1], Saturation:saturation_widget, Lightness:lightness_widget }); 
      interact(from_RGB, { Red:[0,255,1], Green:[0,255,1], Blue:[0,255,1] });
- 
+     set_styles();
+
 
     // ************************ FUNCTIONS TO DISPLAY THE WIDGET INSIDE THE WEB PAGE ************************ //
 
@@ -337,16 +350,14 @@
    
     function create_slider_details(name) {
         const details_holder = document.createElement('DIV');
-        details_holder.setAttribute('id', name);
+        details_holder.setAttribute('id', `${name}_details`);
 
         const title1 = document.createElement('DIV');
         title1.setAttribute('id', `${name}_text_1`);
         const title2 = document.createElement('DIV');
         title2.setAttribute('id', `${name}_text_2`);
         const showColor = document.createElement('DIV');
-        showColor.setAttribute('class', `${name}_showColor`);
-        showColor.style.width = `${show_color_width}` ;
-        showColor.style.height =`${show_color_height}`;
+        showColor.setAttribute('class', `${name}_showColor`);       
         const title3 = document.createElement('DIV');
         title3.setAttribute('id', `${name}_text_3`);
 
@@ -355,6 +366,62 @@
         details_holder.appendChild(showColor);
         details_holder.appendChild(title3);
         return details_holder;
+    }
+
+    /**
+     * set the style of the elements we have added to the web page
+     */
+    function set_styles() {   
+        
+        // Parameters to display the elements in the web page - these can be changes
+        const widget_width = '680px';
+        const widget_max_width = '100%';
+        const show_color_width ='100%';
+        const show_color_height = '100px'; 
+        
+        component.style.display = 'block';
+        component.style.width = `${widget_width}`;
+        component.style.maxWidth = `${widget_max_width}`;
+        component.style.fontFamily = 'inherit';
+        const widgets = document.querySelectorAll('rgb-widget > div');
+        Array.from(widgets).forEach(widget => {
+            widget.style.marginTop= '20px';
+            widget.style.paddingBottom= '5px';
+            widget.style.borderBottom = 'solid 1px #ccc';
+        });
+        const labels = document.querySelectorAll('rgb-widget > div label');
+        Array.from(labels).forEach(label => {
+            label.style.display = 'inline-flex';
+            label.style.width = '230px';
+            label.style.justifyContent = 'space-between';
+            label.style.marginRight = '20px';
+        });
+        const inputs = document.querySelectorAll('rgb-widget > div input[type="range"]');
+        Array.from(inputs).forEach(input => {
+            input.style.width = '130px';
+        });
+        const spans = document.querySelectorAll('rgb-widget > div label+span');
+        Array.from(spans).forEach(span => { 
+            span.style.display = 'inline-block';
+            span.style.boxSixing = 'border-box';
+            span.style.verticalAlign = 'text-bottom';
+        });
+        const details = document.querySelectorAll('rgb-widget div[id*="_RGB_details"]');
+        Array.from(details).forEach(detail => {
+            detail.style.marginTop = '10px';
+        });
+        const titles = document.querySelectorAll('rgb-widget div[id*="RGB_text_"]');
+        Array.from(titles).forEach(title => {
+            title.style.lineHeight = '1.2';
+            title.style.fontSize = '0.998rem';
+        });
+        const colorDivs= document.querySelectorAll('rgb-widget div[class*="_RGB_showColor"]');
+        console.log(colorDivs);
+        Array.from(colorDivs).forEach(colorDiv => {
+            colorDiv.style.width = `${show_color_width}` ;
+            colorDiv.style.height =`${show_color_height}`;
+        });
+        
     }
 
     /**
