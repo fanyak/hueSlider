@@ -172,14 +172,20 @@
     // define widgets with constraints for the following interaction
     const saturation_widget = create_slider(to_RGB, 'saturation', [0, 1, 0.01]);
     const lightness_widget = create_slider(to_RGB, 'lightness', [0, 1, 0.01]);
+    let isUpdating = false;
   
     function update_lightness_range(target) {
+      if(isUpdating) {
+        return;
+      }
       const min = 0.5 * Number(target.value);
       const max = 1 - 0.5 * Number(target.value);
       const current = lightness_widget.getAttribute('value');
       lightness_widget.setAttribute('min', min);
       lightness_widget.setAttribute('max', max);
+
       const update = () => {
+        
         if (current > max) {
           lightness_widget.setAttribute('value', max);
         } else if (current < min) {
@@ -187,7 +193,10 @@
         } else {
           lightness_widget.setAttribute('value', current);
         }
+        isUpdating = false;
       };
+
+      isUpdating = true;
       window.requestAnimationFrame(update);
       display_slider_values(to_RGB);
     }
@@ -385,7 +394,7 @@
       const widgets = document.querySelectorAll('rgb-widget > div');
       Array.from(widgets).forEach(widget => {
         widget.style.marginTop = '20px';
-        widget.style.paddingBottom = '5px';
+        widget.style.paddingBottom = '8px';
         widget.style.borderBottom = 'solid 1px #ccc';
       });
       const labels = document.querySelectorAll('rgb-widget > div label');
@@ -423,7 +432,7 @@
       Array.from(colorDivs).forEach(colorDiv => {
         colorDiv.style.width = `${show_color_width}`;
         colorDiv.style.height = `${show_color_height}`;
-        colorDiv.style.margin = '10px 0 10px 0';
+        colorDiv.style.margin = '8px 0 8px 0';
       });
   
     }
