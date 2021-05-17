@@ -181,8 +181,8 @@
       const min = 0.5 * Number(target.value);
       const max = 1 - 0.5 * Number(target.value);
       const current = lightness_widget.getAttribute('value');
-      lightness_widget.setAttribute('min', min);
-      lightness_widget.setAttribute('max', max);
+      lightness_widget.setAttribute('min', twof(min));
+      lightness_widget.setAttribute('max', twof(max));
 
       const update = () => {
         
@@ -241,16 +241,36 @@
       const values = sliderList.map((slider) => Number(slider.value));
   
       if (target) {
-        const span = document.querySelector(`.${target.id}_value`);
+        const span = document.querySelector(`span.${target.id}_value`);
         span.textContent = twof(Number(target.value));
+        const input_text = document.querySelector(`input[type="text"].${target.id}_value`);
+        const up = () => input_text.value = twof(Number(target.value));
+        window.requestAnimationFrame(up);        
       } else {
         sliderList.forEach((slider) => {
-          const span = document.querySelector(`.${slider.id}_value`);
-          span.textContent = twof(Number(slider.value));
+          const span = document.querySelector(`span.${slider.id}_value`);
+          span.textContent = twof(Number(slider.value));  
+          
+        const input_text = document.querySelector(`input[type="text"].${slider.id}_value`);
+        const up = () => input_text.value = twof(Number(slider.value));
+        window.requestAnimationFrame(up);  
         });
-      }
-  
+      }  
       fn(...values);
+    }
+
+    /**
+     * manually input vaules instead of using the slider
+     * @param {*} fn the function for which we are inputin values
+     * @param {*} target the input box that received the value
+     */
+
+    function create_slider_values(fn, target){
+       const widget = target.classList.value.replace('_value', '');
+       const slider = document.querySelector(`#${widget}`);
+       slider.value = target.value;
+       const an =  display_slider_values.bind(null, fn, slider);
+       window.requestAnimationFrame(an);
     }
   
     /**
@@ -279,7 +299,7 @@
         const input_observer = (evt) => {
           evt.stopPropagation();
           display_slider_values(fn, evt.target);
-        };
+        };        
   
         slider.addEventListener('input', input_observer, true);
         listeners.push([slider, input_observer, 'input']);
@@ -288,9 +308,36 @@
         const label = create_slider_label(key);
         const value_box = document.createElement('SPAN');
         value_box.classList.add(`${fn.name}_widget_${key.toLowerCase()}_value`);
+
+        const input_box = document.createElement('INPUT');
+        input_box.setAttribute('type', 'text');
+        input_box.setAttribute('size', '4');
+        input_box.classList.add(`${fn.name}_widget_${key.toLowerCase()}_value`);
+        const submit_button = document.createElement('BUTTON');
+        submit_button.innerHTML = '&check;';
+
+        const on_type_observer = (evt) => {
+          evt.stopPropagation();
+          create_slider_values(fn, input_box);
+        };
+
+        submit_button.addEventListener('click', on_type_observer, true);
+        listeners.push([submit_button, on_type_observer, 'click']);
+
+        const change_on_enter = (evt) => {
+          if(evt.key == 'Enter') {
+            submit_button.dispatchEvent(new Event('click'));
+          }
+        };
+
+        input_box.addEventListener('keydown', change_on_enter, true);
+        listeners.push([input_box, change_on_enter, 'keydown']);
+
         label.appendChild(slider);
         value_holder.appendChild(label);
         value_holder.appendChild(value_box);
+        value_holder.appendChild(input_box);
+        value_holder.appendChild(submit_button);
         slider_holder.appendChild(value_holder);
       });
   
@@ -397,6 +444,10 @@
         widget.style.paddingBottom = '8px';
         widget.style.borderBottom = 'solid 1px #ccc';
       });
+      const widgetsDivs = document.querySelectorAll('rgb-widget > div > div:not(:last-child)');
+      Array.from(widgetsDivs).forEach(widgetsDiv => {
+        widgetsDiv.style.height = '30px';
+      });
       const labels = document.querySelectorAll('rgb-widget > div label');
       Array.from(labels).forEach(label => {
         label.style.display = 'inline-flex';
@@ -412,8 +463,29 @@
       const spans = document.querySelectorAll('rgb-widget > div label+span');
       Array.from(spans).forEach(span => {
         span.style.display = 'inline-block';
+        span.style.width = '52px';
         span.style.boxSixing = 'border-box';
         span.style.verticalAlign = 'text-bottom';
+      });
+      const textInputs = document.querySelectorAll('rgb-widget > div label+span+input[type="text"]');
+      Array.from(textInputs).forEach(textInput => {
+        textInput.style.display = 'inline-block';
+        textInput.style.boxSixing = 'border-box';
+        textInput.style.verticalAlign = 'middle';
+        textInput.style.marginLeft = '10px';
+        textInput.style.marginBottom = '5px';
+        textInput.style.border = 'solid 1px #ddd';
+      });
+      const changeBtns = document.querySelectorAll('rgb-widget > div label+span+input[type="text"]+button');
+      Array.from(changeBtns).forEach(changeBtn => {
+        changeBtn.style.color = 'green';
+        changeBtn.style.backgroundColor = 'white';
+        changeBtn.style.border = '0px';
+        changeBtn.style.height = '18px';
+        changeBtn.style.cursor = 'pointer';
+        changeBtn.style.marginBottom = '2px';
+        changeBtn.style.fontSize = '18px';   
+        changeBtn.style.fontWeight = 'bold';
       });
       const details = document.querySelectorAll('rgb-widget div[id*="_RGB_details"]');
       Array.from(details).forEach(detail => {
